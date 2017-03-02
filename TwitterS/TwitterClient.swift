@@ -112,6 +112,28 @@ class TwitterClient: BDBOAuth1SessionManager {
         )
     }
 
+    func sendTweet(text: String, id: String?, success: @escaping () -> (), failure: @escaping (Error) -> ()) {
+        if var text = text.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) {
+            if let id = id {
+                text =  text + "&in_reply_to_status_id=\(id)"
+            }
+            
+            post("1.1/statuses/update.json?status=\(text)", parameters: nil, progress: nil,
+                 success: { (task, response) in
+                    success()
+                },
+                 failure: { (task, error) in
+                    failure(error)
+                }
+            )
+        }
+        else{
+            failure("cannot encode" as! Error)
+            
+        }
+    }
+
+    
     func logout() {
         User.currentUser = nil
         deauthorize()

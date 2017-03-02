@@ -54,11 +54,11 @@ class TweetCell: UITableViewCell {
         }
         
         if tweet.favorited {
-            retweetButton.setImage(#imageLiteral(resourceName: "favor-icon-red"), for: .normal)
+            favorButton.setImage(#imageLiteral(resourceName: "favor-icon-red"), for: .normal)
             print("IN")
         }
         else {
-            retweetButton.setImage(#imageLiteral(resourceName: "favor-icon"), for: .normal)
+            favorButton.setImage(#imageLiteral(resourceName: "favor-icon"), for: .normal)
         }
         
         if tweet.retweetCount > 0 {
