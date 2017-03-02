@@ -1,5 +1,5 @@
 //
-//  ProfileView.swift
+//  swift
 //  TwitterS
 //
 //  Created by John Law on 1/3/2017.
@@ -27,5 +27,21 @@ class ProfileView: UIView {
         // Drawing code
     }
     */
+    var user: User!
+
+    func updateView() {
+        if let profileUrl = user.profileUrl {
+            profileImageView.setImageWith(profileUrl)
+        }
+        
+        if let backgroundUrl = user.backgroundUrl {
+            backgroundImageView.setImageWith(backgroundUrl)
+        }
+        
+        nameLabel.text = user.name
+        screennameLabel.text = "@\(user.screenname!)"
+        followerCountLabel.text = "\(user.followerCount!)"
+        followingCountLabel.text = "\(user.followingCount!)"
+    }
 
 }

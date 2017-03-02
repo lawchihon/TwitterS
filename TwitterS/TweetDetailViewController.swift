@@ -43,8 +43,10 @@ class TweetDetailViewController: UIViewController, UITableViewDataSource, UITabl
         
         tableView.tableHeaderView = tweetView
         
-        tableView.backgroundColor = footerView.backgroundColor
-        tableView.tableFooterView = footerView
+        tableView.backgroundColor = UIColor(red: 239/255.0, green: 239/255.0, blue: 244/255.0, alpha: 1.00)
+
+        footerView.frame.origin.y = 100
+        //tableView.tableFooterView = footerView
     }
 
     override func didReceiveMemoryWarning() {

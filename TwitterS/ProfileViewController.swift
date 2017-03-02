@@ -31,18 +31,8 @@ class ProfileViewController: UIViewController {
             self.navigationItem.leftBarButtonItem = nil
         }
         
-        if let profileUrl = user.profileUrl {
-            profileView.profileImageView.setImageWith(profileUrl)
-        }
-        
-        if let backgroundUrl = user.backgroundUrl {
-            profileView.backgroundImageView.setImageWith(backgroundUrl)
-        }
-        
-        profileView.nameLabel.text = user.name
-        profileView.screennameLabel.text = "@\(user.screenname!)"
-        profileView.followerCountLabel.text = "\(user.followerCount!)"
-        profileView.followingCountLabel.text = "\(user.followingCount!)"
+        profileView.user = user
+        profileView.updateView()
         
         tableView.dataSource = self
         tableView.delegate = self
@@ -111,16 +101,13 @@ extension ProfileViewController: UITableViewDataSource, UITableViewDelegate {
     // Cell gets various attributes set automatically based on table (separators) and data source (accessory views, editing controls)
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "profileCell", for: indexPath) as! TweetCell
+        let cell = tableView.dequeueReusableCell(withIdentifier: "profileCell", for: indexPath) as! ProfileCell
         
         let tweet = tweets![indexPath.row]
         
-        cell.tweet = tweet
-        
-        cell.updateCell()
-        
-        //cell.selectionStyle = .none
-        
+        cell.view.tweet = tweet
+        cell.view.updateView()
+
         return cell
     }
 }
