@@ -32,10 +32,8 @@ class LoginViewController: UIViewController {
     }
     */
     @IBAction func onLoginButton(_ sender: Any) {
-
         TwitterClient.sharedInstance.login(
             success: { () in
-                print("login success")
                 self.performSegue(withIdentifier: "loginSegue", sender: nil)
             },
             failure: { (error) in

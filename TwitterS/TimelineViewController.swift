@@ -14,12 +14,15 @@ class TimelineViewController: UIViewController, UITableViewDataSource, UITableVi
     var tweets: [Tweet]?
     let twitterClient = TwitterClient.sharedInstance
     var loading = false
+    var max_id: String?
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
-        twitterClient.hometimeline(
+        refreshControlAction(UIRefreshControl())
+        /*
+        twitterClient.hometimeline(max_id: max_id,
             success: { (tweets) in
                 self.tweets = tweets
                 self.tableView.reloadData()
@@ -31,6 +34,7 @@ class TimelineViewController: UIViewController, UITableViewDataSource, UITableVi
                 self.present(alertController, animated: true)
             }
         )
+        */
         
         tableView.dataSource = self
         tableView.delegate = self
@@ -61,12 +65,12 @@ class TimelineViewController: UIViewController, UITableViewDataSource, UITableVi
     func refreshControlAction(_ refreshControl: UIRefreshControl) {
         
         // ... Create the URLRequest `myRequest` ...
-        twitterClient.max_id = nil
-        twitterClient.hometimeline(
+        twitterClient.hometimeline(max_id: max_id,
             success: { (tweets) in
                 self.tweets = tweets
                 self.tableView.reloadData()
                 refreshControl.endRefreshing()
+                self.max_id = tweets[tweets.count-1].id
             },
             failure: { (error) in
                 let alertController = UIAlertController(title: "Error", message: error.localizedDescription, preferredStyle: .alert)
@@ -102,7 +106,7 @@ class TimelineViewController: UIViewController, UITableViewDataSource, UITableVi
         
         cell.updateCell()
         
-        cell.selectionStyle = .none
+        //cell.selectionStyle = .none
         
         return cell
     }
@@ -114,7 +118,7 @@ class TimelineViewController: UIViewController, UITableViewDataSource, UITableVi
             
             if(scrollView.contentOffset.y > scrollOffsetThreshold && tableView.isDragging) {
                 self.loading = true
-                twitterClient.hometimeline(
+                twitterClient.hometimeline(max_id: max_id,
                     success: { (tweets) in
                         self.tweets?.append(contentsOf: tweets)
                         self.tableView.reloadData()

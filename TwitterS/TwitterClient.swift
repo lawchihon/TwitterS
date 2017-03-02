@@ -14,7 +14,6 @@ class TwitterClient: BDBOAuth1SessionManager {
     
     var loginSuccess: (() -> ())?
     var loginFailure: ((Error) -> ())?
-    var max_id: String?
 
     func login(success: @escaping () -> (), failure: @escaping (Error) -> ()) {
         loginSuccess = success
@@ -46,10 +45,10 @@ class TwitterClient: BDBOAuth1SessionManager {
         )
     }
     
-    func hometimeline(success: @escaping ([Tweet]) -> (), failure: @escaping (Error) -> ()) {
+    func hometimeline(max_id: String?, success: @escaping ([Tweet]) -> (), failure: @escaping (Error) -> ()) {
         var hometimelineUrl = "1.1/statuses/home_timeline.json"
-        if self.max_id != nil {
-            hometimelineUrl += "?max_id=\(self.max_id!)"            
+        if max_id != nil {
+            hometimelineUrl += "?max_id=\(max_id!)"
         }
 
         get(hometimelineUrl, parameters: nil, progress: nil,
@@ -57,8 +56,6 @@ class TwitterClient: BDBOAuth1SessionManager {
                 let dictionaries = response as! [NSDictionary]
 
                 let tweets = Tweet.tweetsWithArray(dictionaries: dictionaries)
-                
-                self.max_id = tweets[tweets.count-1].id
 
                 success(tweets)
             },
@@ -68,6 +65,30 @@ class TwitterClient: BDBOAuth1SessionManager {
         )
     }
 
+    func userTimeline(id: String?, max_id: String?, success: @escaping ([Tweet]) -> (), failure: @escaping (Error) -> ()) {
+        var timelineUrl = "1.1/statuses/user_timeline.json"
+        if id != nil {
+            timelineUrl += "?user_id=\(id!)"
+        }
+        if max_id != nil {
+            timelineUrl += "?max_id=\(max_id!)"
+        }
+        
+        get(timelineUrl, parameters: nil, progress: nil,
+            success: { (task, response) in
+                let dictionaries = response as! [NSDictionary]
+                
+                let tweets = Tweet.tweetsWithArray(dictionaries: dictionaries)
+    
+                success(tweets)
+            },
+            failure: { (task, error) in
+                failure(error)
+            }
+        )
+    }
+
+    
     func retweet(id: String, success: @escaping () -> (), failure: @escaping (Error) -> ()) {
         post("1.1/statuses/retweet/\(id).json", parameters: nil, progress: nil,
             success: { (task, response) in
@@ -117,7 +138,7 @@ class TwitterClient: BDBOAuth1SessionManager {
             if let id = id {
                 text =  text + "&in_reply_to_status_id=\(id)"
             }
-            
+            print(text)
             post("1.1/statuses/update.json?status=\(text)", parameters: nil, progress: nil,
                  success: { (task, response) in
                     success()

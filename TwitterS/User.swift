@@ -9,11 +9,15 @@
 import UIKit
 
 class User: NSObject {
+    var id: String?
     var name: String?
     var screenname: String?
     var profileUrl: URL?
     var tagline: String?
+    var backgroundUrl: URL?
     var dictionary: NSDictionary?
+    var followingCount: Int?
+    var followerCount: Int?
     
     init(dictionary: NSDictionary) {
         self.dictionary = dictionary
@@ -24,6 +28,14 @@ class User: NSObject {
         if let profileUrlString = profileUrlString {
             profileUrl = URL(string: profileUrlString)
         }
+        
+        if let backgroundUrlString = dictionary["profile_background_image_url_https"] as? String {
+            backgroundUrl = URL(string: backgroundUrlString)
+        }
+        
+        followingCount = dictionary["friends_count"] as? Int
+        followerCount = dictionary["followers_count"] as? Int
+        id = dictionary["id_str"] as? String
         tagline = dictionary["description"] as? String
     }
     

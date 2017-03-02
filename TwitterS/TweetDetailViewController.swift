@@ -10,7 +10,8 @@ import UIKit
 
 class TweetDetailViewController: UIViewController, UITableViewDataSource, UITableViewDelegate  {
 
-    @IBOutlet var tweetView: UIView!
+    @IBOutlet weak var tweetView: UIView!
+    @IBOutlet weak var footerView: UIView!
     @IBOutlet weak var posterImage: UIImageView!
     @IBOutlet weak var posterName: UILabel!
     @IBOutlet weak var posterScreenname: UILabel!
@@ -35,16 +36,15 @@ class TweetDetailViewController: UIViewController, UITableViewDataSource, UITabl
         tableView.delegate = self
         tableView.estimatedRowHeight = 120
         tableView.rowHeight = UITableViewAutomaticDimension
-        tableView.tableHeaderView = tweetView
-        tableView.sectionHeaderHeight = UITableViewAutomaticDimension
-        let height = tweetView.systemLayoutSizeFitting(UILayoutFittingExpandedSize).height
-        print(height)
-        let height2 = tweetView.systemLayoutSizeFitting(UILayoutFittingCompressedSize).height
-        print(height2)
-        tableView.tableHeaderView?.frame.size.height = height
-        //print(tweetView.systemLayoutSizeFitting(UILayoutFittingCompressedSize).height)
-        //tableView.headerView(forSection: 0)?.frame.size.height = UITableViewAutomaticDimension
+
+        tweetView.setNeedsLayout()
+        tweetView.layoutIfNeeded()
+        tweetView.frame.size = tweetView.systemLayoutSizeFitting(UILayoutFittingCompressedSize)
         
+        tableView.tableHeaderView = tweetView
+        
+        tableView.backgroundColor = footerView.backgroundColor
+        tableView.tableFooterView = footerView
     }
 
     override func didReceiveMemoryWarning() {
@@ -187,10 +187,14 @@ class TweetDetailViewController: UIViewController, UITableViewDataSource, UITabl
          */
     }
     
+    @IBAction func onBackButton(_ sender: Any) {
+        self.dismiss(animated: true, completion: nil)
+    }
+
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         
         if let detailNavigationViewController = segue.destination as? UINavigationController {
-            if let detailViewController = detailNavigationViewController.viewControllers[0] as? ReplyViewController {
+            if let detailViewController = detailNavigationViewController.viewControllers[0] as? NewTweetViewController {
                 detailViewController.tweet = self.tweet
             }
         }

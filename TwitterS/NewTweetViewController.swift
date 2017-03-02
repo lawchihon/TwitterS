@@ -1,5 +1,5 @@
 //
-//  ReplyViewController.swift
+//  NewTweetViewController.swift
 //  TwitterS
 //
 //  Created by John Law on 1/3/2017.
@@ -7,23 +7,23 @@
 //
 
 import UIKit
-import AFNetworking
 
-class ReplyViewController: UIViewController {
+class NewTweetViewController: UIViewController {
 
     @IBOutlet var replyToLabel: UILabel!
     @IBOutlet var replyTextView: UITextView!
+    @IBOutlet var placeHolderLabel: UILabel!
 
-    var tweet: Tweet!
+    var tweet: Tweet?
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         self.tabBarController?.tabBar.isHidden = true
-
+        
         let url = User.currentUser?.profileUrl
         let data = try? Data(contentsOf: url!) //make sure your image in this url does exist, otherwise unwrap in a if let check / try-catch
-
+        
         //create a new button
         let profileButton = UIButton()
         profileButton.setImage(UIImage(data: data!), for: UIControlState.normal)
@@ -50,33 +50,43 @@ class ReplyViewController: UIViewController {
         tweetToolbar.sizeToFit()
         replyTextView.inputAccessoryView = tweetToolbar
         
-        replyTextView.text = "@\((tweet.poster?.screenname)!) "
-        replyToLabel.text = "In reply to \((tweet.poster?.name)!)"
+        if let tweet = tweet {
+            replyTextView.text = "@\((tweet.poster?.screenname)!) "
+            replyToLabel.text = "In reply to \((tweet.poster?.name)!)"
+            self.placeHolderLabel.isHidden = true
+        }
+        else {
+            replyTextView.text = ""
+            replyToLabel.text = ""
+            replyToLabel.isHidden = true
+            self.placeHolderLabel.isHidden = false
+        }
+        replyTextView.delegate = self
         replyTextView.becomeFirstResponder()
     }
-
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
     
-
+    
     /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
-    }
-    */
+     // MARK: - Navigation
+     
+     // In a storyboard-based application, you will often want to do a little preparation before navigation
+     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+     // Get the new view controller using segue.destinationViewController.
+     // Pass the selected object to the new view controller.
+     }
+     */
     @IBAction func onCancelButton(_ sender: Any) {
         self.dismiss(animated: true, completion: nil)
     }
-
+    
     func postTweet(_ sender: UIButton) {
         
-        TwitterClient.sharedInstance.sendTweet(text: replyTextView.text, id: tweet.id,
+        TwitterClient.sharedInstance.sendTweet(text: replyTextView.text, id: tweet?.id,
             success: {
                 //print("Updated")
             },
@@ -89,5 +99,16 @@ class ReplyViewController: UIViewController {
     func exitReply() {
         self.tabBarController?.tabBar.isHidden = false
         self.dismiss(animated: true, completion: nil)
+    }
+}
+
+extension NewTweetViewController: UITextViewDelegate {
+    func textViewDidChange(_ textView: UITextView) {
+        if self.replyTextView.hasText {
+            self.placeHolderLabel.isHidden = true
+        }
+        else {
+            self.placeHolderLabel.isHidden = false
+        }
     }
 }
