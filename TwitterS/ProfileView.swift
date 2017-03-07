@@ -19,6 +19,7 @@ class ProfileView: UIView {
     @IBOutlet weak var followerLabel: UILabel!
     @IBOutlet weak var followingCountLabel: UILabel!
     @IBOutlet weak var followingLabel: UILabel!
+    @IBOutlet weak var descriptionLabel: UILabel!
 
     /*
     // Only override draw() if you perform custom drawing.
@@ -42,6 +43,7 @@ class ProfileView: UIView {
         screennameLabel.text = "@\(user.screenname!)"
         followerCountLabel.text = "\(user.followerCount!)"
         followingCountLabel.text = "\(user.followingCount!)"
+        descriptionLabel.text = user.tagline
     }
 
 }

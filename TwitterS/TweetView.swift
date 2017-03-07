@@ -34,7 +34,6 @@ class TweetView: UIView {
     func updateView() {
         let posterImageUrl = tweet.poster?.profileUrl
         if let posterImageUrl = posterImageUrl {
-            print(posterImageUrl)
             self.posterImageView.setImageWith(posterImageUrl)
         }
         
@@ -52,7 +51,6 @@ class TweetView: UIView {
         
         if tweet.favorited {
             favorButton.setImage(#imageLiteral(resourceName: "favor-icon-red"), for: .normal)
-            print("IN")
         }
         else {
             favorButton.setImage(#imageLiteral(resourceName: "favor-icon"), for: .normal)

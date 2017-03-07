@@ -15,6 +15,8 @@ class NewTweetViewController: UIViewController {
     @IBOutlet var placeHolderLabel: UILabel!
 
     var tweet: Tweet?
+    var count = 140
+    weak var delegate: TweetViewControllerDelegate?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -31,24 +33,7 @@ class NewTweetViewController: UIViewController {
         profileButton.frame = CGRect(x: 0, y: 0, width: 30, height: 30)
         
         self.navigationItem.leftBarButtonItem = UIBarButtonItem(customView: profileButton)
-        
-        
-        let tweetButton = UIButton()
-        tweetButton.setTitle("Tweet", for: .normal)
-        tweetButton.setTitleColor(UIColor.white, for: .normal)
-        tweetButton.backgroundColor = UIColor(red: 29/255.0, green: 141/255.0, blue: 238/255.0, alpha: 1.00)
-        tweetButton.frame = CGRect(x: 0, y: 0, width: 70, height: 25)
-        tweetButton.layer.cornerRadius = 5
-        tweetButton.addTarget(self, action: #selector(postTweet(_:)), for: .touchUpInside)
-        
-        let tweetToolbar = UIToolbar(frame: CGRect())
-        tweetToolbar.barStyle = UIBarStyle.default
-        tweetToolbar.items = [
-            UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.flexibleSpace, target: nil, action: nil),
-            UIBarButtonItem(customView: tweetButton)
-        ]
-        tweetToolbar.sizeToFit()
-        replyTextView.inputAccessoryView = tweetToolbar
+        self.navigationController?.navigationBar.barTintColor = UIColor.white
         
         if let tweet = tweet {
             replyTextView.text = "@\((tweet.poster?.screenname)!) "
@@ -63,6 +48,25 @@ class NewTweetViewController: UIViewController {
         }
         replyTextView.delegate = self
         replyTextView.becomeFirstResponder()
+
+        
+        let tweetButton = UIButton()
+        tweetButton.setTitle("Tweet", for: .normal)
+        tweetButton.frame = CGRect(x: 0, y: 0, width: 70, height: 25)
+        tweetButton.layer.cornerRadius = 5
+        tweetButton.addTarget(self, action: #selector(postTweet(_:)), for: .touchUpInside)
+        
+        let tweetToolbar = UIToolbar(frame: CGRect())
+        tweetToolbar.barStyle = UIBarStyle.default
+        tweetToolbar.items = [
+            UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.flexibleSpace, target: nil, action: nil), UIBarButtonItem(title: "", style: .plain, target: nil, action: nil),
+            UIBarButtonItem(customView: tweetButton)
+        ]
+        tweetToolbar.backgroundColor = UIColor.white
+        tweetToolbar.sizeToFit()
+        replyTextView.inputAccessoryView = tweetToolbar
+
+        updateToolBar()
     }
     
     override func didReceiveMemoryWarning() {
@@ -87,8 +91,9 @@ class NewTweetViewController: UIViewController {
     func postTweet(_ sender: UIButton) {
         
         TwitterClient.sharedInstance.sendTweet(text: replyTextView.text, id: tweet?.id,
-            success: {
-                //print("Updated")
+            success: { (tweet) in
+                self.delegate?.newTweet(tweet: tweet)
+                self.exitReply()
             },
             failure: { (error) in
                 print("\(error.localizedDescription)")
@@ -97,13 +102,56 @@ class NewTweetViewController: UIViewController {
     }
     
     func exitReply() {
+        print("HERE?")
         self.tabBarController?.tabBar.isHidden = false
         self.dismiss(animated: true, completion: nil)
     }
+    
+    func updateToolBar() {
+        let tweetToolbar = replyTextView.inputAccessoryView as! UIToolbar
+        let textCount = replyTextView.text.characters.count
+        let textLimit = count - textCount
+        tweetToolbar.items?[1].title = "\(textLimit)"
+        tweetToolbar.items?[1].tintColor = UIColor.gray
+        
+
+        if textCount == 0 {
+            tweetToolbar.items?[2].isEnabled = false
+            setInvalidTweetButton(tweetButton: tweetToolbar.items?[2].customView as! UIButton)
+        }
+        else {
+            tweetToolbar.items?[2].isEnabled = true
+            setValidTweetButton(tweetButton: tweetToolbar.items?[2].customView as! UIButton)
+        }
+
+        if textLimit < 20 {
+            tweetToolbar.items?[1].tintColor = UIColor.red
+            if textLimit < 0 {
+                tweetToolbar.items?[2].isEnabled = false
+                setInvalidTweetButton(tweetButton: tweetToolbar.items?[2].customView as! UIButton)
+            }
+        }
+    }
+    
+    func setValidTweetButton(tweetButton: UIButton) {
+        tweetButton.setTitleColor(UIColor.white, for: .normal)
+        tweetButton.layer.borderWidth = 0
+        tweetButton.backgroundColor = UIColor(red: 29/255.0, green: 141/255.0, blue: 238/255.0, alpha: 1.00)
+    }
+    
+    func setInvalidTweetButton(tweetButton: UIButton) {
+        tweetButton.backgroundColor = UIColor.white
+        tweetButton.layer.borderWidth = 1
+        tweetButton.layer.borderColor = UIColor.lightGray.cgColor
+        tweetButton.setTitleColor(UIColor.lightGray, for: .normal)
+    }
 }
+
+
 
 extension NewTweetViewController: UITextViewDelegate {
     func textViewDidChange(_ textView: UITextView) {
+        updateToolBar()
         if self.replyTextView.hasText {
             self.placeHolderLabel.isHidden = true
         }

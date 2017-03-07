@@ -1,8 +1,8 @@
-# Project 4 - TwitterS
+# Project - TwitterS
 
 TwitterS is a simplified Twitter app displaying your home timeline tweets using [Twitter API](http://http://dev.twitter.com).
 
-Time spent: 6 hours spent in total
+Time spent: 6(W1) + 10(W2) hours spent in total
 
 ## User Stories
 
@@ -13,23 +13,46 @@ The following **required** functionality is completed:
 - [X] The current signed in user will be persisted across restarts
 - [X] In the home timeline, user can view tweet with the user profile picture, username, tweet text, and timestamp.
 - [X] Retweeting and favoriting should increment the retweet and favorite count.
+- [X] Tweet Details Page: User can tap on a tweet to view it, with controls to retweet, favorite, and reply.
+- [X] Profile page:
+   - [X] Contains the user header view
+   - [X] Contains a section with the users basic stats: # tweets, # following, # followers
+- [X] Home Timeline: Tapping on a user image should bring up that user's profile page
+- [X] Compose Page: User can compose a new tweet by tapping on a compose button.
+
 
 The following **optional** features are implemented:
 
 - [X] User can load more tweets once they reach the bottom of the feed using infinite loading similar to the actual Twitter client.
 - [X] User should be able to unretweet and unfavorite and should decrement the retweet and favorite count.
 - [X] User can pull to refresh.
+- [X] When composing, you should have a countdown in the upper right for the tweet limit.
+- [X] After creating a new tweet, a user should be able to view it in the timeline immediately without refetching the timeline from the network.
+- [ ] Profile Page
+   - [X] Implement the paging view for the user description.
+   - [ ] As the paging view moves, increase the opacity of the background screen. See the actual Twitter app for this effect
+   - [ ] Pulling down the profile page should blur and resize the header image.
+- [ ] Account switching
+   - [ ] Long press on tab bar to bring up Account view with animation
+   - [ ] Tap account to switch to
+   - [ ] Include a plus button to Add an Account
+   - [ ] Swipe to delete an account
+
 
 The following **additional** features are implemented:
 
 - [X] UI Customization
 - [X] Changing the retweet and favorite button if the tweet was retweeted or favorited by the user
 - [X] Alert window pops out when there is an error occure
+- [X] If it is replying to a tweet, it will included the reply tweet id to POST
+- [X] If it is replying to a tweet, it will auto detect who is replying to and put the @ in the tweet
+- [X] Disable tweet to submit when there is no content or out of limit
+- [X] The tweet limit countdown will turn red once it is almost over limit
 
 Please list two areas of the assignment you'd like to **discuss further with your peers** during the next class (examples include better ways to implement something, how to extend your app in certain ways, etc):
 
-1. As from the tutorial video, it is teaching us to use NS type of variable and why?
-2. Shouldn't we put the "1.1" in the baseUrl instead of having it in the all the get and post url?
+1. How to use nib?
+2. I found that there is a lot scene have similar layout, should have different scene for each case or we should make one that is reusable?
 
 ## Video Walkthrough 
 
@@ -42,7 +65,7 @@ Walkthrough recorded by QuickTime Player.
 ## Notes
 
 - Keep having "Request failed: forbidden (403)" since it reach the limit of the API, spent 1 hour waiting for that.
-- I am wonder if the api return the data in real time cause it is a bit different with what I saw on my twitter app on my phone.
+- Running out of time to work on because of the school work.
 
 ## License
 

@@ -20,7 +20,16 @@ class TimelineViewController: UIViewController, UITableViewDataSource, UITableVi
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
-        refreshControlAction(UIRefreshControl())
+        self.navigationController?.navigationBar.barTintColor = UIColor.white
+        //self.navigationController?.navigationBar.shadowImage = UIColor.black
+        let navigationBar = navigationController?.navigationBar
+        
+        let navBorder: UIView = UIView(frame: CGRect(x: 0, y: navigationBar!.frame.size.height, width: navigationBar!.frame.size.width, height: 1))
+        // Set the color you want here
+        navBorder.backgroundColor = UIColor(red: 0.19, green: 0.19, blue: 0.2, alpha: 1)
+        navBorder.isOpaque = true
+        self.navigationController?.navigationBar.addSubview(navBorder)
+
         /*
         twitterClient.hometimeline(max_id: max_id,
             success: { (tweets) in
@@ -45,6 +54,10 @@ class TimelineViewController: UIViewController, UITableViewDataSource, UITableVi
         refreshControl.addTarget(self, action: #selector(refreshControlAction(_:)), for: UIControlEvents.valueChanged)
         tableView.insertSubview(refreshControl, at: 0)
     }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        refreshControlAction(UIRefreshControl())
+    }
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
@@ -65,7 +78,7 @@ class TimelineViewController: UIViewController, UITableViewDataSource, UITableVi
     func refreshControlAction(_ refreshControl: UIRefreshControl) {
         
         // ... Create the URLRequest `myRequest` ...
-        twitterClient.hometimeline(max_id: max_id,
+        twitterClient.hometimeline(max_id: nil,
             success: { (tweets) in
                 self.tweets = tweets
                 self.tableView.reloadData()
@@ -106,7 +119,7 @@ class TimelineViewController: UIViewController, UITableViewDataSource, UITableVi
         
         cell.updateCell()
         
-        //cell.selectionStyle = .none
+        cell.selectionStyle = .none
         
         return cell
     }
@@ -134,15 +147,38 @@ class TimelineViewController: UIViewController, UITableViewDataSource, UITableVi
             }
         }
         
-    }
-
+    }    
+    
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        
+
         if let detailViewController = segue.destination as? TweetDetailViewController {
             let cell = sender as! TweetCell
-            
             detailViewController.tweet = cell.tweet
+            detailViewController.delegate = cell
         }
         
+        if let detailNavigationViewController = segue.destination as? UINavigationController {
+            if let detailViewController = detailNavigationViewController.viewControllers[0] as? NewTweetViewController {
+                detailViewController.delegate = self
+            }
+            if let detailViewController = detailNavigationViewController.viewControllers[0] as? ProfileViewController {
+                if let sender = sender as? UIButton {
+                    if let cell = sender.superview?.superview as? TweetCell {
+                        detailViewController.user = cell.tweet.poster
+                    }
+                }
+                
+            }
+        }
+    }
+}
+
+extension TimelineViewController: TweetViewControllerDelegate {
+    func updateTweet(tweet: Tweet) {
+    }
+    
+    //new tweet in time line
+    func newTweet(tweet: Tweet) {
+        refreshControlAction(UIRefreshControl())
     }
 }

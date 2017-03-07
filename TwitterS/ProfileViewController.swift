@@ -23,8 +23,6 @@ class ProfileViewController: UIViewController {
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
-        self.navigationController?.navigationBar.setBackgroundImage(UIImage(), for: UIBarMetrics.default)
-        self.navigationController?.navigationBar.shadowImage = UIImage()
         //self.navigationController?.isNavigationBarHidden = true;
         if user == nil {
             user = User.currentUser!
@@ -43,6 +41,7 @@ class ProfileViewController: UIViewController {
         refreshControlAction(UIRefreshControl())
         let refreshControl = UIRefreshControl()
         refreshControl.addTarget(self, action: #selector(refreshControlAction(_:)), for: UIControlEvents.valueChanged)
+        tableView.insertSubview(refreshControl, at: 0)
 
         tableView.estimatedRowHeight = 120
         tableView.rowHeight = UITableViewAutomaticDimension
@@ -53,6 +52,14 @@ class ProfileViewController: UIViewController {
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        self.navigationController?.navigationBar.setBackgroundImage(UIImage(), for: UIBarMetrics.default)
+        self.navigationController?.navigationBar.shadowImage = UIImage()
+        for subview in (self.navigationController?.navigationBar.subviews)! {
+            subview.removeFromSuperview()
+        }
     }
     
 
@@ -67,11 +74,9 @@ class ProfileViewController: UIViewController {
     */
     
     func refreshControlAction(_ refreshControl: UIRefreshControl) {
-        print("Hello")
         // ... Create the URLRequest `myRequest` ...
         TwitterClient.sharedInstance.userTimeline(id: user.id, max_id: max_id,
             success: { (tweets) in
-                print(tweets)
                 self.tweets = tweets
                 self.tableView.reloadData()
                 refreshControl.endRefreshing()
@@ -85,6 +90,18 @@ class ProfileViewController: UIViewController {
         )
     }
 
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        
+        if let detailViewController = segue.destination as? TweetDetailViewController {
+            let cell = sender as! TweetCell
+            detailViewController.tweet = cell.tweet
+        }
+        
+    }
+    @IBAction func onBackButton(_ sender: Any) {
+        self.dismiss(animated: true, completion: nil)
+        let _ = self.navigationController?.popViewController(animated: true)
+    }
 }
 
 extension ProfileViewController: UITableViewDataSource, UITableViewDelegate {
@@ -101,12 +118,12 @@ extension ProfileViewController: UITableViewDataSource, UITableViewDelegate {
     // Cell gets various attributes set automatically based on table (separators) and data source (accessory views, editing controls)
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "profileCell", for: indexPath) as! ProfileCell
+        let cell = tableView.dequeueReusableCell(withIdentifier: "tweetCell", for: indexPath) as! TweetCell
         
         let tweet = tweets![indexPath.row]
         
-        cell.view.tweet = tweet
-        cell.view.updateView()
+        cell.tweet = tweet
+        cell.updateCell()
 
         return cell
     }

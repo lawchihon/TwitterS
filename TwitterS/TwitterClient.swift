@@ -10,7 +10,7 @@ import UIKit
 import BDBOAuth1Manager
 
 class TwitterClient: BDBOAuth1SessionManager {
-    //static let sharedInstance = TwitterClient(baseURL: URL(string: "https://api.twitter.com"), consumerKey: "2yJe5l2o2XLTpVfuiA4sHKp4L", consumerSecret: "PtxN1VSKhD8Mo9lzGI5fbHFzY4q2HZ18GEohVpNXZaTStCBDOF")!
+    //  static let sharedInstance = TwitterClient(baseURL: URL(string: "https://api.twitter.com"), consumerKey: "2yJe5l2o2XLTpVfuiA4sHKp4L", consumerSecret: "PtxN1VSKhD8Mo9lzGI5fbHFzY4q2HZ18GEohVpNXZaTStCBDOF")!
     static let sharedInstance = TwitterClient(baseURL: URL(string: "https://api.twitter.com"), consumerKey: "nmhiqaGusZzzHB65sToh5BIyg", consumerSecret: "fk0RVOSp3uF0M3dFjO1XStaByYKJw50aqKzKjX4wu5mqXDYNlM")!
     var loginSuccess: (() -> ())?
     var loginFailure: ((Error) -> ())?
@@ -67,14 +67,19 @@ class TwitterClient: BDBOAuth1SessionManager {
 
     func userTimeline(id: String?, max_id: String?, success: @escaping ([Tweet]) -> (), failure: @escaping (Error) -> ()) {
         var timelineUrl = "1.1/statuses/user_timeline.json"
+        
+        var parameters = [String: String]()
         if id != nil {
+            parameters["user_id"] = id
             timelineUrl += "?user_id=\(id!)"
         }
         if max_id != nil {
-            timelineUrl += "?max_id=\(max_id!)"
+            parameters["max_id"] = max_id
+            timelineUrl += "&max_id=\(max_id!)"
         }
         
-        get(timelineUrl, parameters: nil, progress: nil,
+        parameters["count"] = "200"
+        get(timelineUrl, parameters: parameters, progress: nil,
             success: { (task, response) in
                 let dictionaries = response as! [NSDictionary]
                 
@@ -83,6 +88,28 @@ class TwitterClient: BDBOAuth1SessionManager {
                 success(tweets)
             },
             failure: { (task, error) in
+                failure(error)
+            }
+        )
+    }
+
+    func replyTweets(id: String, reply_id: String, max_id: String?, success: @escaping ([Tweet]) -> (), failure: @escaping (Error) -> ()) {
+        print("Target: \(reply_id)")
+        userTimeline(id: id, max_id: max_id,
+            success: { (tweets) in
+                var replies = [Tweet]()
+                for tweet in tweets {
+                    if let tweet_id = tweet.reply_id {
+                        print("Checking: \(tweet_id)")
+                        if tweet_id == reply_id {
+                            print("adding")
+                            replies.append(tweet)
+                        }
+                    }
+                }
+                success(replies)
+            },
+            failure: { (error) in
                 failure(error)
             }
         )
@@ -133,15 +160,15 @@ class TwitterClient: BDBOAuth1SessionManager {
         )
     }
 
-    func sendTweet(text: String, id: String?, success: @escaping () -> (), failure: @escaping (Error) -> ()) {
+    func sendTweet(text: String, id: String?, success: @escaping (_ newTweet: Tweet) -> (), failure: @escaping (Error) -> ()) {
         if var text = text.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) {
             if let id = id {
                 text =  text + "&in_reply_to_status_id=\(id)"
             }
-            print(text)
             post("1.1/statuses/update.json?status=\(text)", parameters: nil, progress: nil,
                  success: { (task, response) in
-                    success()
+                    let tweet = Tweet.init(dictionary: response as! NSDictionary)
+                    success(tweet)
                 },
                  failure: { (task, error) in
                     failure(error)

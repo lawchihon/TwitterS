@@ -46,6 +46,7 @@ class TweetCell: UITableViewCell {
         
         self.content.text = tweet.text
         
+        print(tweet.favorCount)
         if tweet.favorCount > 0 {
             self.favorCount.text = "\(tweet.favorCount)"
         }
@@ -55,7 +56,6 @@ class TweetCell: UITableViewCell {
         
         if tweet.favorited {
             favorButton.setImage(#imageLiteral(resourceName: "favor-icon-red"), for: .normal)
-            print("IN")
         }
         else {
             favorButton.setImage(#imageLiteral(resourceName: "favor-icon"), for: .normal)
@@ -129,5 +129,21 @@ class TweetCell: UITableViewCell {
                 }
             )
         }
+    }
+    
+    @IBAction func onProfileButton(_ sender: Any) {
+        
+    }
+}
+
+extension TweetCell: TweetViewControllerDelegate {
+    func updateTweet(tweet: Tweet) {
+        self.tweet = tweet
+        self.updateCell()
+    }
+    
+    //reply to this tweet
+    func newTweet(tweet: Tweet) {
+        
     }
 }
